@@ -8,16 +8,13 @@
 
 class UCameraComponent;
 class USpringArmComponent;
+class USInteractionComponent;
+class UAnimMontage;
 
 UCLASS()
 class MYPROJECT_API ASCharacter : public ACharacter
 {
 	GENERATED_BODY()
-
-protected:
-
-	UPROPERTY(EditAnywhere)
-	TSubclassOf<AActor> ProjectileClass;
 
 public:
 	// Sets default values for this character's properties
@@ -25,11 +22,23 @@ public:
 
 protected:
 
+	UPROPERTY(EditAnywhere, Category= "Attack")
+	TSubclassOf<AActor> ProjectileClass;
+
+	UPROPERTY(EditAnywhere, Category="Attack")
+	UAnimMontage* AttackAnim;
+
+	FTimerHandle TimerHandle_PrimaryAttack;
+
+	
 	UPROPERTY(VisibleAnywhere)
 	USpringArmComponent* SpringArmComp;
 
 	UPROPERTY(VisibleAnywhere)
 	UCameraComponent* CameraComp;
+
+	UPROPERTY(VisibleAnywhere)
+	USInteractionComponent* InteractionComp;
 	
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
@@ -41,7 +50,9 @@ public:
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
 
+	void PrimaryAttack_TimeElapsed();
 	void PrimaryAttack();
+	void PrimaryInteract();
 	// Called to bind functionality to input
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
 
