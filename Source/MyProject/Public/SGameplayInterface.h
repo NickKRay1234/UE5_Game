@@ -19,6 +19,6 @@ class MYPROJECT_API ISGameplayInterface
 
 public:
 
-	UFUNCTION(BlueprintNativeEvent)
+	UFUNCTION(BlueprintCallable, BlueprintNativeEvent)
 	void Interact(APawn* InstigatorPawn);
 };

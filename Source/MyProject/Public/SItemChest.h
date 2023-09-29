@@ -7,7 +7,7 @@
 #include "GameFramework/Actor.h"
 #include "SItemChest.generated.h"
 
-UCLASS()
+UCLASS(Blueprintable)
 class MYPROJECT_API ASItemChest : public AActor, public ISGameplayInterface
 {
 	GENERATED_BODY()
