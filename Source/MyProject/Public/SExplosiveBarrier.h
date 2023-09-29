@@ -14,6 +14,11 @@ class MYPROJECT_API ASExplosiveBarrier : public AActor
 	
 public:	
 	ASExplosiveBarrier();
+	virtual void PostInitializeComponents() override;
+
+	UFUNCTION()
+	void OnActorHit(UPrimitiveComponent* HitComponent, AActor* OtherAtor, UPrimitiveComponent* OtherComp,
+	                FVector NormalImpulse, const FHitResult& Hit);
 
 protected:
 
@@ -22,7 +27,6 @@ protected:
 	
 	UPROPERTY(VisibleAnywhere)
 	URadialForceComponent* RadialComp;
-
 	
 	virtual void BeginPlay() override;
 
