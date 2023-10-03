@@ -19,16 +19,28 @@ class MYPROJECT_API ASCharacter : public ACharacter
 public:
 	// Sets default values for this character's properties
 	ASCharacter();
+	
 
 protected:
-
+	
 	UPROPERTY(EditAnywhere, Category= "Attack")
 	TSubclassOf<AActor> ProjectileClass;
+
+	UPROPERTY(EditAnywhere, Category= "Attack")
+	TSubclassOf<AActor> BlackHoleClass;
+
+	UPROPERTY(EditAnywhere, Category= "Attack")
+	TSubclassOf<AActor> TeleportProjectile;
+
+	UPROPERTY(EditAnywhere, Category= "Attack")
+	float TraceDistance = 5000.0f;
 
 	UPROPERTY(EditAnywhere, Category="Attack")
 	UAnimMontage* AttackAnim;
 
 	FTimerHandle TimerHandle_PrimaryAttack;
+	FVector HandLocation;
+	FTransform SpawnTM;
 
 	
 	UPROPERTY(VisibleAnywhere)
@@ -51,8 +63,11 @@ public:
 	virtual void Tick(float DeltaTime) override;
 
 	void PrimaryAttack_TimeElapsed();
+	void BlackHole();
+	void Teleport();
 	void PrimaryAttack();
 	void PrimaryInteract();
+	FVector GetTargetLocation() const;
 	// Called to bind functionality to input
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
 

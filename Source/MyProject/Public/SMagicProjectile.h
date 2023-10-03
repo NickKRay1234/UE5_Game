@@ -3,6 +3,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "SCharacter.h"
 #include "GameFramework/Actor.h"
 #include "SMagicProjectile.generated.h"
 
@@ -15,11 +16,9 @@ class ASMagicProjectile : public AActor
 	GENERATED_BODY()
 	
 public:	
-	// Sets default values for this actor's properties
 	ASMagicProjectile();
-
 protected:
-
+	
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
 	USphereComponent* SphereComp;
 
@@ -35,5 +34,4 @@ protected:
 public:	
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
-
 };

@@ -12,13 +12,13 @@
 // Sets default values
 ASCharacter::ASCharacter()
 {
- 	// Set this character to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
+	// Set this character to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = true;
-	
+
 	SpringArmComp = CreateDefaultSubobject<USpringArmComponent>("SpringArmComp");
 	SpringArmComp->bUsePawnControlRotation = true;
 	SpringArmComp->SetupAttachment(RootComponent);
-	
+
 	CameraComp = CreateDefaultSubobject<UCameraComponent>("CameraComp");
 	CameraComp->SetupAttachment(SpringArmComp);
 
@@ -29,7 +29,6 @@ ASCharacter::ASCharacter()
 	bUseControllerRotationYaw = false;
 }
 
-// Called when the game starts or when spawned
 void ASCharacter::BeginPlay()
 {
 	Super::BeginPlay();
@@ -61,12 +60,9 @@ void ASCharacter::MoveRight(float Value)
 	FRotator ControlRot = GetControlRotation();
 	ControlRot.Pitch = 0.0f;
 	ControlRot.Roll = 0.0f;
-
-	// X = Forward(Red)
-	// Y = Right(Green)
-	// Z = Up(Blue)
-	const FVector RightVector = FRotationMatrix(ControlRot).GetScaledAxis(EAxis::Y);
 	
+	const FVector RightVector = FRotationMatrix(ControlRot).GetScaledAxis(EAxis::Y);
+
 	AddMovementInput(RightVector, Value);
 }
 
@@ -82,20 +78,52 @@ void ASCharacter::Tick(float DeltaTime)
 	FVector LineStart = GetActorLocation();
 	LineStart += GetActorRightVector() * 100.0f;
 	FVector ActorDirection_LineEnd = LineStart + (GetActorForwardVector() * 100.0f);
-	DrawDebugDirectionalArrow(GetWorld(), LineStart, ActorDirection_LineEnd, DrawScale, FColor::Yellow, false, 0.0f, 0, Thickness);
+	DrawDebugDirectionalArrow(GetWorld(), LineStart, ActorDirection_LineEnd, DrawScale, FColor::Yellow, false, 0.0f, 0,
+	                          Thickness);
 
 	FVector ControllerDirection_LineEnd = LineStart + (GetControlRotation().Vector() * 100.0f);
-	DrawDebugDirectionalArrow(GetWorld(), LineStart, ControllerDirection_LineEnd, DrawScale, FColor::Green, false, 0.0f, 0, Thickness);
+	DrawDebugDirectionalArrow(GetWorld(), LineStart, ControllerDirection_LineEnd, DrawScale, FColor::Green, false, 0.0f,
+	                          0, Thickness);
 }
 
 void ASCharacter::PrimaryAttack_TimeElapsed()
 {
-	FVector HandLocation = GetMesh()->GetSocketLocation("Muzzle_01");
-	FTransform SpawnTM = FTransform(GetControlRotation(),HandLocation);
+	HandLocation = GetMesh()->GetSocketLocation("Muzzle_01");;
+	FVector TargetLocation = GetTargetLocation();
+	FRotator TargetRotation = (TargetLocation - HandLocation).Rotation();
+	SpawnTM = FTransform(TargetRotation, HandLocation);
 	FActorSpawnParameters SpawnParams;
 	SpawnParams.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
 	SpawnParams.Instigator = this;
 	GetWorld()->SpawnActor<AActor>(ProjectileClass, SpawnTM, SpawnParams);
+}
+
+void ASCharacter::BlackHole()
+{
+	TextMessage();
+	PlayAnimMontage(AttackAnim);
+	HandLocation = GetMesh()->GetSocketLocation("Muzzle_01");;
+	FVector TargetLocation = GetTargetLocation();
+	FRotator TargetRotation = (TargetLocation - HandLocation).Rotation();
+	SpawnTM = FTransform(TargetRotation, HandLocation);
+	FActorSpawnParameters SpawnParams;
+	SpawnParams.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
+	SpawnParams.Instigator = this;
+	GetWorld()->SpawnActor<AActor>(BlackHoleClass, SpawnTM, SpawnParams);
+}
+
+void ASCharacter::Teleport()
+{
+	TextMessage();
+	PlayAnimMontage(AttackAnim);
+	HandLocation = GetMesh()->GetSocketLocation("Muzzle_01");;
+	FVector TargetLocation = GetTargetLocation();
+	FRotator TargetRotation = (TargetLocation - HandLocation).Rotation();
+	SpawnTM = FTransform(TargetRotation, HandLocation);
+	FActorSpawnParameters SpawnParams;
+	SpawnParams.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
+	SpawnParams.Instigator = this;
+	GetWorld()->SpawnActor<AActor>(TeleportProjectile, SpawnTM, SpawnParams);
 }
 
 void ASCharacter::PrimaryAttack()
@@ -109,10 +137,21 @@ void ASCharacter::PrimaryAttack()
 
 void ASCharacter::PrimaryInteract()
 {
-	if(InteractionComp)
-	{
+	if (InteractionComp)
 		InteractionComp->PrimaryInteract();
-	}
+}
+
+FVector ASCharacter::GetTargetLocation() const
+{
+	FVector StartLocation = CameraComp->GetComponentLocation();
+	FRotator CameraRotation = CameraComp->GetComponentRotation();
+	FVector ForwardVector = CameraRotation.Vector();
+	FVector EndLocation = StartLocation + (ForwardVector * TraceDistance);
+
+	FHitResult HitResult;
+	if (GetWorld()->LineTraceSingleByChannel(HitResult, StartLocation, EndLocation, ECC_Visibility))
+		return HitResult.Location;
+	return EndLocation;
 }
 
 
@@ -124,15 +163,14 @@ void ASCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputComponen
 	PlayerInputComponent->BindAxis("MoveForward", this, &ASCharacter::MoveForward);
 	PlayerInputComponent->BindAxis("MoveRight", this, &ASCharacter::MoveRight);
 	PlayerInputComponent->BindAction("Jump", IE_Pressed, this, &ASCharacter::Jump);
+	PlayerInputComponent->BindAction("BlackHole", IE_Pressed, this, &ASCharacter::BlackHole);
+	PlayerInputComponent->BindAction("Teleport", IE_Pressed, this, &ASCharacter::Teleport);
 
-	
+
 	PlayerInputComponent->BindAxis("Turn", this, &APawn::AddControllerYawInput);
 	PlayerInputComponent->BindAxis("LookUp", this, &APawn::AddControllerPitchInput);
 
 
 	PlayerInputComponent->BindAction("PrimaryAttack", IE_Pressed, this, &ASCharacter::PrimaryAttack);
 	PlayerInputComponent->BindAction("PrimaryInteract", IE_Pressed, this, &ASCharacter::PrimaryInteract);
-
-	
 }
-
