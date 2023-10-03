@@ -24,6 +24,8 @@ ASCharacter::ASCharacter()
 
 	InteractionComp = CreateDefaultSubobject<USInteractionComponent>("InteractionComp");
 
+	AttributeComp = CreateDefaultSubobject<USAttributeComponent>("AttributeComp");
+
 	GetCharacterMovement()->bOrientRotationToMovement = true;
 
 	bUseControllerRotationYaw = false;
@@ -88,14 +90,17 @@ void ASCharacter::Tick(float DeltaTime)
 
 void ASCharacter::PrimaryAttack_TimeElapsed()
 {
-	HandLocation = GetMesh()->GetSocketLocation("Muzzle_01");;
-	FVector TargetLocation = GetTargetLocation();
-	FRotator TargetRotation = (TargetLocation - HandLocation).Rotation();
-	SpawnTM = FTransform(TargetRotation, HandLocation);
-	FActorSpawnParameters SpawnParams;
-	SpawnParams.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
-	SpawnParams.Instigator = this;
-	GetWorld()->SpawnActor<AActor>(ProjectileClass, SpawnTM, SpawnParams);
+	if(ensure(ProjectileClass))
+	{
+		HandLocation = GetMesh()->GetSocketLocation("Muzzle_01");;
+		FVector TargetLocation = GetTargetLocation();
+		FRotator TargetRotation = (TargetLocation - HandLocation).Rotation();
+		SpawnTM = FTransform(TargetRotation, HandLocation);
+		FActorSpawnParameters SpawnParams;
+		SpawnParams.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
+		SpawnParams.Instigator = this;
+		GetWorld()->SpawnActor<AActor>(ProjectileClass, SpawnTM, SpawnParams);
+	}
 }
 
 void ASCharacter::BlackHole()
