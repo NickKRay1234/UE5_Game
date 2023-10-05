@@ -10,13 +10,13 @@ ASExplosiveBarrier::ASExplosiveBarrier()
 	MeshComponent = CreateDefaultSubobject<UStaticMeshComponent>("MeshComp");
 	MeshComponent->SetSimulatePhysics(true);
 	RootComponent = MeshComponent;
-
+	
 	RadialComp = CreateDefaultSubobject<URadialForceComponent>("RadialComp");
 	RadialComp->SetupAttachment(MeshComponent);
 	RadialComp->SetAutoActivate(false);
 	RadialComp->Radius = 750.0f;
 	RadialComp->bImpulseVelChange = true;
-
+	
 	RadialComp->AddCollisionChannelToAffect(ECC_WorldDynamic);
 }
 
@@ -28,7 +28,7 @@ void ASExplosiveBarrier::PostInitializeComponents()
 
 void ASExplosiveBarrier::OnActorHit(UPrimitiveComponent* HitComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, FVector NormalImpulse, const FHitResult& Hit)
 {
-	RadialComp->FireImpulse();
+	//RadialComp->FireImpulse();
 
 	UE_LOG(LogTemp, Log, TEXT("OnActorHit in Explosive Barrel"));
 
