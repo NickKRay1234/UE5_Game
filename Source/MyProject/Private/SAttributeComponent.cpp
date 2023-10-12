@@ -3,9 +3,30 @@
 
 #include "SAttributeComponent.h"
 
+USAttributeComponent* USAttributeComponent::GetAttributes(AActor* FromActor)
+{
+	if(FromActor)
+	{
+		return FromActor->FindComponentByClass<USAttributeComponent>();
+		//return Cast<USAttributeComponent>(FromActor->GetComponentByClass(USAttributeComponent::StaticClass()));
+	}
+	return nullptr;
+}
+
+bool USAttributeComponent::IsActorAlive(AActor* Actor)
+{
+	USAttributeComponent* AttributeComponent = GetAttributes(Actor);
+	if(AttributeComponent)
+	{
+		return AttributeComponent->IsAlive(); 
+	}
+	return false;
+}
+
 USAttributeComponent::USAttributeComponent()
 {
 	Health = 100.0f;
+	Health = HealthMax;
 }
 
 void USAttributeComponent::BeginPlay()
@@ -20,9 +41,21 @@ bool USAttributeComponent::IsAlive() const
 
 
 
-bool USAttributeComponent::ApplyHealthChange(float Delta)
+bool USAttributeComponent::ApplyHealthChange(AActor* InstigatorActor, float Delta)
 {
-	Health += Delta;
-	OnHealthChanged.Broadcast(nullptr, this, Health, Delta);
-	return true;
+	float OldHealth = Health;
+	Health = FMath::Clamp(Health + Delta, 0.0f, HealthMax);
+	float ActualDelta = Health - OldHealth;
+	OnHealthChanged.Broadcast(InstigatorActor, this, Health, ActualDelta);
+	return ActualDelta != 0;
+}
+
+bool USAttributeComponent::IsFullHealth() const
+{
+	return Health == HealthMax;
+}
+
+float USAttributeComponent::GetHealthMax() const
+{
+	return HealthMax;
 }

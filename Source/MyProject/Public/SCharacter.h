@@ -56,6 +56,11 @@ protected:
 	UPROPERTY(VisibleAnywhere)
 	USInteractionComponent* InteractionComp;
 	
+	UPROPERTY(VisibleAnywhere, Category="Effects")
+	UParticleSystem* CastingEffect;
+	UPROPERTY(VisibleAnywhere, Category="Effects")
+	FName HandSocketName;
+
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
 
@@ -72,6 +77,7 @@ public:
 	void PrimaryAttack();
 	void PrimaryInteract();
 	FVector GetTargetLocation() const;
+	void StartAttackEffects();
 	// Called to bind functionality to input
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
 
