@@ -42,4 +42,7 @@ public:
 	void SpawnBotTimerElapsed();
 
 	virtual void StartPlay() override;
+
+	UFUNCTION(Exec)
+	void KillAll();
 };
