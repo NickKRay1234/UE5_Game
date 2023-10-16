@@ -2,6 +2,8 @@
 
 
 #include "SMagicProjectile.h"
+
+#include "SGameplayFunctionLibrary.h"
 #include "Components/SphereComponent.h"
 #include "GameFramework/ProjectileMovementComponent.h"
 #include "Particles/ParticleSystemComponent.h"
@@ -30,12 +32,13 @@ void ASMagicProjectile::OnActorOverlap(UPrimitiveComponent* OverlappedComponent,
 {
 	if(OtherActor && OtherActor != GetInstigator())
 	{
-		USAttributeComponent* AttributeComp = Cast<USAttributeComponent>(OtherActor->GetComponentByClass(USAttributeComponent::StaticClass()));
-		if(AttributeComp)
-		{
-			AttributeComp->ApplyHealthChange(GetInstigator(), -20.0f);
-			Destroy();
-		}
+		// USAttributeComponent* AttributeComp = Cast<USAttributeComponent>(OtherActor->GetComponentByClass(USAttributeComponent::StaticClass()));
+		// if(AttributeComp)
+		// {
+		// 	AttributeComp->ApplyHealthChange(GetInstigator(), -20.0f);
+		// 	Destroy();
+		// }
+		USGameplayFunctionLibrary::ApplyDirectionalDamage(GetInstigator(), OtherActor, -20.0f, SweepResult);
 	}
 }
 

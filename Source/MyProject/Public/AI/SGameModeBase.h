@@ -29,10 +29,15 @@ protected:
 	FTimerHandle TimerHandle_SpawnBots;
 	
 	UPROPERTY(EditDefaultsOnly, Category = "AI")
-	float SpawnTimerInterval; 
+	float SpawnTimerInterval;
+
+	UFUNCTION()
+	void RespawnPlayerElapsed(AController* Controller);
 
 public:
 
+	virtual void OnActorKilled(AActor* VictimActor, AActor* Killer);
+	
 	ASGameModeBase();
 
 	UFUNCTION()
