@@ -5,7 +5,6 @@
 #include "SInteractionComponent.h"
 #include "GameFramework/CharacterMovementComponent.h"
 #include "Engine/Engine.h"
-#include "Kismet/GameplayStatics.h"
 
 ASCharacter::ASCharacter()
 {
@@ -26,7 +25,6 @@ ASCharacter::ASCharacter()
 	GetCharacterMovement()->bOrientRotationToMovement = true;
 
 	bUseControllerRotationYaw = false;
-	HandSocketName = "Muzzle_01";
 }
 
 void ASCharacter::BeginPlay()
@@ -96,56 +94,19 @@ void ASCharacter::SprintStop()
 	ActionComponent->StopActionByName(this, "Sprint");
 }
 
-void ASCharacter::PrimaryAttack_TimeElapsed()
-{
-	if(ensure(ProjectileClass))
-	{
-		HandLocation = GetMesh()->GetSocketLocation("Muzzle_01");;
-		FVector TargetLocation = GetTargetLocation();
-		FRotator TargetRotation = (TargetLocation - HandLocation).Rotation();
-		SpawnTM = FTransform(TargetRotation, HandLocation);
-		FActorSpawnParameters SpawnParams;
-		SpawnParams.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
-		SpawnParams.Instigator = this;
-		GetWorld()->SpawnActor<AActor>(ProjectileClass, SpawnTM, SpawnParams);
-	}
-}
-
 void ASCharacter::BlackHole()
 {
-	TextMessage();
-	PlayAnimMontage(AttackAnim);
-	HandLocation = GetMesh()->GetSocketLocation("Muzzle_01");;
-	FVector TargetLocation = GetTargetLocation();
-	FRotator TargetRotation = (TargetLocation - HandLocation).Rotation();
-	SpawnTM = FTransform(TargetRotation, HandLocation);
-	FActorSpawnParameters SpawnParams;
-	SpawnParams.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
-	SpawnParams.Instigator = this;
-	GetWorld()->SpawnActor<AActor>(BlackHoleClass, SpawnTM, SpawnParams);
+	ActionComponent->StartActionByName(this, "BlackHole");
 }
 
 void ASCharacter::Teleport()
 {
-	TextMessage();
-	PlayAnimMontage(AttackAnim);
-	HandLocation = GetMesh()->GetSocketLocation("Muzzle_01");;
-	FVector TargetLocation = GetTargetLocation();
-	FRotator TargetRotation = (TargetLocation - HandLocation).Rotation();
-	SpawnTM = FTransform(TargetRotation, HandLocation);
-	FActorSpawnParameters SpawnParams;
-	SpawnParams.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
-	SpawnParams.Instigator = this;
-	GetWorld()->SpawnActor<AActor>(TeleportProjectile, SpawnTM, SpawnParams);
+	ActionComponent->StartActionByName(this, "Teleport");
 }
 
 void ASCharacter::PrimaryAttack()
 {
-	PlayAnimMontage(AttackAnim);
-
-	GetWorldTimerManager().SetTimer(TimerHandle_PrimaryAttack, this, &ASCharacter::PrimaryAttack_TimeElapsed, 0.2f);
-
-	//GetWorldTimerManager().ClearTimer(TimerHandle_PrimaryAttack);
+	ActionComponent->StartActionByName(this, "PrimaryAttack");
 }
 
 void ASCharacter::PrimaryInteract()
@@ -154,31 +115,10 @@ void ASCharacter::PrimaryInteract()
 		InteractionComp->PrimaryInteract();
 }
 
-FVector ASCharacter::GetTargetLocation() const
-{
-	FVector StartLocation = CameraComp->GetComponentLocation();
-	FRotator CameraRotation = CameraComp->GetComponentRotation();
-	FVector ForwardVector = CameraRotation.Vector();
-	FVector EndLocation = StartLocation + (ForwardVector * TraceDistance);
-
-	FHitResult HitResult;
-	if (GetWorld()->LineTraceSingleByChannel(HitResult, StartLocation, EndLocation, ECC_Visibility))
-		return HitResult.Location;
-	return EndLocation;
-}
-
-void ASCharacter::StartAttackEffects()
-{
-	PlayAnimMontage(AttackAnim);
-	UGameplayStatics::SpawnEmitterAttached(CastingEffect, GetMesh(), HandSocketName, FVector::ZeroVector, FRotator::ZeroRotator, EAttachLocation::SnapToTarget);
-}
-
 FVector ASCharacter::GetPawnViewLocation() const
 {
 	return CameraComp->GetComponentLocation();
 }
-
-
 
 // Called to bind functionality to input
 void ASCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)

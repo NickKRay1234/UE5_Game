@@ -4,6 +4,8 @@
 #include "UObject/NoExportTypes.h"
 #include "SAction.generated.h"
 
+class UWorld;
+
 UCLASS(Blueprintable)
 class MYPROJECT_API USAction : public UObject
 {
@@ -23,5 +25,5 @@ public:
 	UPROPERTY(EditDefaultsOnly, Category="Action")
 	FName ActionName;
 
-	
+	virtual UWorld* GetWorld() const override;
 };
