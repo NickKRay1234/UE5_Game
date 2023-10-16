@@ -1,6 +1,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "GameplayTagContainer.h"
 #include "UObject/NoExportTypes.h"
 #include "SAction.generated.h"
 
@@ -26,4 +27,18 @@ public:
 	FName ActionName;
 
 	virtual UWorld* GetWorld() const override;
+
+protected:
+
+	UFUNCTION(BlueprintCallable, Category = "Action")
+	USActionComponent* GetOwningComponent() const;
+	
+	/* Tags added to owning actor when activated, removed when action stops */
+	UPROPERTY(EditDefaultsOnly, Category = "Tags")
+	FGameplayTagContainer GrantsTags;
+
+	/* Action can only start if OwningActor has none of these Tags applied */
+	UPROPERTY(EditDefaultsOnly, Category = "Tags")
+	FGameplayTagContainer BlockedTags;
+	
 };

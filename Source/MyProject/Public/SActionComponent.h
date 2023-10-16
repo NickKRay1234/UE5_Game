@@ -1,6 +1,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "GameplayTagContainer.h"
 #include "SAction.h"
 #include "Components/ActorComponent.h"
 #include "SActionComponent.generated.h"
@@ -13,6 +14,9 @@ class MYPROJECT_API USActionComponent : public UActorComponent
 	GENERATED_BODY()
 public:
 
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category= "Tags")
+	FGameplayTagContainer ActiveGameplayTags;
+	
 	UFUNCTION(BlueprintCallable, Category = "Actions")
 	void AddAction(TSubclassOf<USAction> ActionClass);
 
