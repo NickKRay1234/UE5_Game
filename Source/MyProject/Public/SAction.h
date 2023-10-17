@@ -14,6 +14,12 @@ class MYPROJECT_API USAction : public UObject
 
 public:
 
+	UFUNCTION(BlueprintCallable, Category = "Action")
+	bool IsRunning() const;
+	
+	UFUNCTION(BlueprintNativeEvent, Category = "Action")
+	bool CanStart(AActor* Instigator);
+	
 	/* Instigator - who's responsible for starting\stopping this */
 	UFUNCTION(BlueprintNativeEvent, Category="Action")
 	void StartAction(AActor* Instigator);
@@ -29,7 +35,7 @@ public:
 	virtual UWorld* GetWorld() const override;
 
 protected:
-
+	
 	UFUNCTION(BlueprintCallable, Category = "Action")
 	USActionComponent* GetOwningComponent() const;
 	
@@ -40,5 +46,7 @@ protected:
 	/* Action can only start if OwningActor has none of these Tags applied */
 	UPROPERTY(EditDefaultsOnly, Category = "Tags")
 	FGameplayTagContainer BlockedTags;
+
+	bool bIsRunning;
 	
 };
