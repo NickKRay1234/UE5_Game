@@ -8,6 +8,8 @@ ASPowerupActor::ASPowerupActor()
 	RootComponent = SphereComp;
 
 	RespawnTime = 10.0f;
+
+	SetReplicates(true);
 }
 
 void ASPowerupActor::Interact_Implementation(APawn* InstigatorPawn)
